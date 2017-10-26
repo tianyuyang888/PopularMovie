@@ -4,7 +4,7 @@ import android.text.TextUtils;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
-import com.yangtianyu.network.Api;
+import com.yangtianyu.net.Api;
 
 /**
  * Created by yangtianyu on 2017/10/25.

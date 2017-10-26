@@ -11,14 +11,24 @@ import android.view.View;
 public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
     private int space;
+    private int line;
 
-    public GridSpacingItemDecoration(int space){
+    public GridSpacingItemDecoration(int space,int line){
         this.space = space;
+        this.line = line;
     }
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         int position = parent.getChildAdapterPosition(view);
-
+        //设置距离左右的间隔
+        if (position%line == 0){
+            outRect.right = space/2;
+        }else if (position%line == line-1){
+            outRect.left = space/2;
+        }else {
+            outRect.right = space/2;
+            outRect.left = space/2;
+        }
     }
 }

@@ -24,6 +24,7 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
 
     private List<MovieEntity> mList;
     private Context mContext;
+    private OnItemClickListener mOnItemClickListener;
 
     public PosterAdapter(Context context,List<MovieEntity> list){
         this.mContext = context;
@@ -36,7 +37,13 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
     }
 
     @Override
-    public void onBindViewHolder(PosterAdapter.PosterViewHolder holder, int position) {
+    public void onBindViewHolder(PosterAdapter.PosterViewHolder holder, final int position) {
+        holder.mIvPoster.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOnItemClickListener.OnClickListener(position);
+            }
+        });
         holder.bind(mList.get(position).poster_path);
     }
 
@@ -49,6 +56,10 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
         if (list == null) return;
         mList.addAll(list);
         notifyDataSetChanged();
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.mOnItemClickListener = listener;
     }
 
     class PosterViewHolder extends RecyclerView.ViewHolder{

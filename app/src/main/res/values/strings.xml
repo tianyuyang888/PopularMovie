@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Popular Movie</string>
+    <string name="setting">设置</string>
+    <string name="movie_title">电影名称</string>
+    <string name="movie_overview">剧情简介</string>
+    <string name="movie_vote_average">用户评分</string>
+    <string name="movie_release_time">发布日期</string>
 </resources>

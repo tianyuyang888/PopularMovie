@@ -1,25 +1,35 @@
-package com.yangtianyu.network;
+package com.yangtianyu.net;
 
-import android.content.Context;
-
-import com.yangtianyu.bean.PopularEntity;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
-import com.zhy.http.okhttp.callback.StringCallback;
-
-import java.util.Random;
 
 /**
  * Created by yangtianyu on 2017/10/25.
  */
 
 public class ApiUtils {
+    /**
+     * 获取热门电影列表
+     * @param callback
+     */
     public static void getPoster(Callback callback){
         OkHttpUtils.get().url(Api.API_POPULAR)
                 .addParams("api_key",Constant.API_KEY)
                 .addParams("language",Constant.LANGUAGE)
                 .addParams("region",Constant.REGION)
                 .addParams("page","1")
+                .build().execute(callback);
+    }
+
+    /**
+     * 获取电影详情
+     * @param callback
+     * @param movieId
+     */
+    public static void getMovieDetails(String movieId,Callback callback){
+        OkHttpUtils.get().url(Api.BASE_URL+movieId)
+                .addParams("api_key",Constant.API_KEY)
+                .addParams("language",Constant.LANGUAGE)
                 .build().execute(callback);
     }
 }
