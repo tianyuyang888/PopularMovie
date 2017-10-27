@@ -11,9 +11,11 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.bean.PosterEntity;
+import com.yangtianyu.net.Api;
 import com.yangtianyu.popularmovie.R;
 import com.yangtianyu.utils.ImageUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,13 +24,12 @@ import java.util.List;
 
 public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterViewHolder> {
 
-    private List<MovieEntity> mList;
+    private List<MovieEntity> mList = new ArrayList<>();
     private Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public PosterAdapter(Context context,List<MovieEntity> list){
+    public PosterAdapter(Context context){
         this.mContext = context;
-        this.mList = list;
     }
 
     @Override
@@ -62,6 +63,11 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
         this.mOnItemClickListener = listener;
     }
 
+    public void clearData() {
+        mList.clear();
+        notifyDataSetChanged();
+    }
+
     class PosterViewHolder extends RecyclerView.ViewHolder{
 
         ImageView mIvPoster;
@@ -72,7 +78,7 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
         }
 
         public void bind(String url){
-            ImageUtils.loadImgage(url,mIvPoster);
+            ImageUtils.loadImage(Api.API_IMAGE_W185,url,mIvPoster);
         }
     }
 }

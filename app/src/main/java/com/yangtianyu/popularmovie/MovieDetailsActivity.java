@@ -64,7 +64,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 mTvVoteAverage.setText(getResources().getString(R.string.movie_vote_average) + ":" + movieDetailsEntity.vote_average);
                 mTvReleaseTime.setText(getResources().getString(R.string.movie_release_time) + ":" + movieDetailsEntity.release_date);
                 mTvOverview.setText(getResources().getString(R.string.movie_overview) + ":" + movieDetailsEntity.overview);
-                ImageUtils.loadImgage(movieDetailsEntity.poster_path,mIvPoster);
+                ImageUtils.loadImage(Api.API_IMAGE_W500,movieDetailsEntity.poster_path,mIvPoster);
             }
         });
     }

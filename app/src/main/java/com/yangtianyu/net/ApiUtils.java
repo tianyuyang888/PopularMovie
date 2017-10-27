@@ -12,12 +12,12 @@ public class ApiUtils {
      * 获取热门电影列表
      * @param callback
      */
-    public static void getPoster(Callback callback){
-        OkHttpUtils.get().url(Api.API_POPULAR)
+    public static void getPoster(String url,int page,Callback callback){
+        OkHttpUtils.get().url(url)
                 .addParams("api_key",Constant.API_KEY)
                 .addParams("language",Constant.LANGUAGE)
                 .addParams("region",Constant.REGION)
-                .addParams("page","1")
+                .addParams("page",page+"")
                 .build().execute(callback);
     }
 

@@ -16,8 +16,8 @@ public class ImageUtils {
      * @param url
      * @param iv
      */
-    public static void loadImgage(String url, ImageView iv){
+    public static void loadImage(String size,String url, ImageView iv){
         if (TextUtils.isEmpty(url) || iv == null) return;
-        Picasso.with(iv.getContext()).load(Api.API_IMAGE + url).into(iv);
+        Picasso.with(iv.getContext()).load(size + url).into(iv);
     }
 }
