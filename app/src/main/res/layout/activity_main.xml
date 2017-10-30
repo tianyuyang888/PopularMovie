@@ -34,9 +34,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <android.support.v7.widget.RecyclerView
-            android:layout_marginBottom="@dimen/activity_horizontal_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
             android:id="@+id/rv_movie_poster"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

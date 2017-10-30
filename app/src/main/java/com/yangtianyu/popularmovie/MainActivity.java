@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         mList = new ArrayList<>();
         mPosterAdapter = new PosterAdapter(this);
         mRvMoviePoster.setLayoutManager(new GridLayoutManager(this, 2));
-        mRvMoviePoster.addItemDecoration(new GridSpacingItemDecoration(50, 2));
+//        mRvMoviePoster.addItemDecoration(new GridSpacingItemDecoration(50, 2));
         mRvMoviePoster.setAdapter(mPosterAdapter);
         mRvMoviePoster.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

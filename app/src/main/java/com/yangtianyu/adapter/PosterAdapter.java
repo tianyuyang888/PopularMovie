@@ -1,12 +1,18 @@
 package com.yangtianyu.adapter;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Point;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.squareup.picasso.Picasso;
 import com.yangtianyu.bean.MovieEntity;
@@ -14,6 +20,7 @@ import com.yangtianyu.bean.PosterEntity;
 import com.yangtianyu.net.Api;
 import com.yangtianyu.popularmovie.R;
 import com.yangtianyu.utils.ImageUtils;
+import com.yangtianyu.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +85,10 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
         }
 
         public void bind(String url){
+            ViewGroup.LayoutParams layoutParams = mIvPoster.getLayoutParams();
+            layoutParams.width = UiUtils.getScreenWidth(mContext)/2;
+            layoutParams.height = layoutParams.width*7/5;
+            mIvPoster.setLayoutParams(layoutParams);
             ImageUtils.loadImage(Api.API_IMAGE_W185,url,mIvPoster);
         }
     }
