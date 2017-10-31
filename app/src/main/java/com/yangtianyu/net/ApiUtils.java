@@ -3,6 +3,13 @@ package com.yangtianyu.net;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Scanner;
+
 /**
  * Created by yangtianyu on 2017/10/25.
  */
@@ -31,5 +38,27 @@ public class ApiUtils {
                 .addParams("api_key",Constant.API_KEY)
                 .addParams("language",Constant.LANGUAGE)
                 .build().execute(callback);
+    }
+
+    /**
+     * 使用HttpURLConnection请求网络
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public static String getResponseFromHttpUrl(URL url) throws IOException{
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try {
+            InputStream in = urlConnection.getInputStream();
+            Scanner scanner = new Scanner(in);
+            scanner.useDelimiter("\\A");
+            if (scanner.hasNext()){
+                return scanner.next();
+            }else {
+                return null;
+            }
+        } finally {
+            urlConnection.disconnect();
+        }
     }
 }

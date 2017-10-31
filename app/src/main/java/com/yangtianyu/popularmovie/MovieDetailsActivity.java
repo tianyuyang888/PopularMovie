@@ -3,6 +3,8 @@ package com.yangtianyu.popularmovie;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,9 +15,6 @@ import com.yangtianyu.net.ApiUtils;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.utils.ImageUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,6 +36,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     TextView mTvReleaseTime;
     @Bind(R.id.iv_poster)
     ImageView mIvPoster;
+    @Bind(R.id.tool_bar)
+    Toolbar mToolBar;
     private String mMovie_id = "";
 
     @Override
@@ -44,10 +45,22 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
         ButterKnife.bind(this);
-        if (getIntent()!=null){
+        mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
+        mToolBar.setTitle(getResources().getString(R.string.movie_detail));
+        setSupportActionBar(mToolBar);
+        if (getSupportActionBar()!=null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getIntent() != null) {
             mMovie_id = getIntent().getStringExtra(Constant.MOVIE_ID);
         }
         initData();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home)
+            finish();
+        return true;
     }
 
     private void initData() {
@@ -64,7 +77,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 mTvVoteAverage.setText(getResources().getString(R.string.movie_vote_average) + ":" + movieDetailsEntity.vote_average);
                 mTvReleaseTime.setText(getResources().getString(R.string.movie_release_time) + ":" + movieDetailsEntity.release_date);
                 mTvOverview.setText(getResources().getString(R.string.movie_overview) + ":" + movieDetailsEntity.overview);
-                ImageUtils.loadImage(Api.API_IMAGE_W500,movieDetailsEntity.poster_path,mIvPoster);
+                ImageUtils.loadImage(Api.API_IMAGE_W500, movieDetailsEntity.poster_path, mIvPoster);
             }
         });
     }

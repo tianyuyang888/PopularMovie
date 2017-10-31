@@ -8,6 +8,14 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!--白色图标toolbar-->
+    <style name="MyToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorControlNormal">@color/white</item>
+    </style>
+
+
     <style name="tv_16_ff">
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
@@ -22,5 +30,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
     </style>
+
+
 
 </resources>

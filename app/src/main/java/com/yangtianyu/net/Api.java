@@ -5,6 +5,10 @@ package com.yangtianyu.net;
  */
 
 public class Api {
+    public static final String API_KEY = "api_key";
+    public static final String LANGUAGE = "language";
+    public static final String PAGE = "page";
+    public static final String REGION = "region";
     public static String API_IMAGE_W185 = "https://image.tmdb.org/t/p/w185";
     public static String API_IMAGE_W500 = "https://image.tmdb.org/t/p/w185";
     public static String BASE_URL = "https://api.themoviedb.org/3/movie/";

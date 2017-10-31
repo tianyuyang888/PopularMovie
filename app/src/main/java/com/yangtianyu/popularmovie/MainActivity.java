@@ -1,19 +1,19 @@
 package com.yangtianyu.popularmovie;
 
-import android.graphics.Paint;
-import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -24,13 +24,24 @@ import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.bean.PopularEntity;
 import com.yangtianyu.net.Api;
 import com.yangtianyu.net.ApiUtils;
-import com.yangtianyu.utils.GridSpacingItemDecoration;
+import com.yangtianyu.net.Constant;
 import com.yangtianyu.utils.JumpUtils;
 import com.yangtianyu.utils.LogUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.logging.ErrorManager;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -41,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.rv_movie_poster)
     RecyclerView mRvMoviePoster;
-    @Bind(R.id.tv_setting)
-    TextView mTvSetting;
     @Bind(R.id.pb_loading)
     ProgressBar mPbLoading;
     @Bind(R.id.tv_loading)
@@ -51,51 +60,48 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout mLlLoading;
     @Bind(R.id.activity_main)
     LinearLayout mActivityMain;
+    @Bind(R.id.tool_bar)
+    Toolbar mToolBar;
     private List<MovieEntity> mList;
     private PosterAdapter mPosterAdapter;
     private int page = 1;
-    private String localUrl = Api.API_TOP_RATED;
-    private PopupWindow mPopupWindow;
+    private String localUrl = Api.API_POPULAR;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
+        mToolBar.setTitle(getResources().getString(R.string.app_name));
+        setSupportActionBar(mToolBar);
         initView();
-        initPopupWindow();
-        initData();
+        init2Data();
+//        initData();
     }
 
-    private void initPopupWindow() {
-        mPopupWindow = new PopupWindow(this);
-        mPopupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-        mPopupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-        View inflate = LayoutInflater.from(this).inflate(R.layout.setting_sort_popupwindow, null);
-        TextView tvPopular = (TextView) inflate.findViewById(R.id.tv_popular);
-        TextView tvVote = (TextView) inflate.findViewById(R.id.tv_vote);
-        View.OnClickListener localListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()){
-                    case R.id.tv_popular:
-                        localUrl = Api.API_POPULAR;
-                        initData();
-                        break;
-                    case R.id.tv_vote:
-                        localUrl = Api.API_TOP_RATED;
-                        initData();
-                        break;
-                }
-            }
-        };
-        tvPopular.setOnClickListener(localListener);
-        tvVote.setOnClickListener(localListener);
-        mPopupWindow.setContentView(inflate);
-        mPopupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
-        mPopupWindow.setOutsideTouchable(false);
-        mPopupWindow.setFocusable(true);
+    private void init2Data() {
+        mList.clear();
+        mPosterAdapter.clearData();
+        page = 1;
+        new MoviePopularTask().execute(buildUrl(page));
     }
+
+    private URL buildUrl(int page) {
+        URL url = null;
+        Uri build = Uri.parse(localUrl).buildUpon()
+                .appendQueryParameter(Api.API_KEY, Constant.API_KEY)
+                .appendQueryParameter(Api.LANGUAGE, Constant.LANGUAGE)
+                .appendQueryParameter(Api.REGION, Constant.REGION)
+                .appendQueryParameter(Api.PAGE, page+"").build();
+        try {
+            url = new URL(build.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
 
     private void initData() {
         mList.clear();
@@ -103,11 +109,11 @@ public class MainActivity extends AppCompatActivity {
         mLlLoading.setVisibility(View.VISIBLE);
         mPbLoading.setVisibility(View.VISIBLE);
         mTvLoading.setText(getResources().getString(R.string.net_loading));
-       getMovieList(1);
+        getMovieList(1);
     }
 
     private void getMovieList(int i) {
-        ApiUtils.getPoster(localUrl,i,new StringCallback() {
+        ApiUtils.getPoster(localUrl, i, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
                 mPbLoading.setVisibility(View.INVISIBLE);
@@ -137,18 +143,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 int lastPostion = -1;
-                if (newState == RecyclerView.SCROLL_STATE_IDLE){
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                    if (layoutManager instanceof GridLayoutManager){
+                    if (layoutManager instanceof GridLayoutManager) {
                         lastPostion = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
-                    }else if (layoutManager instanceof LinearLayoutManager){
+                    } else if (layoutManager instanceof LinearLayoutManager) {
                         lastPostion = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
-                    }else if (layoutManager instanceof StaggeredGridLayoutManager){
+                    } else if (layoutManager instanceof StaggeredGridLayoutManager) {
                         int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
                         ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions);
                         lastPostion = findMax(positions);
                     }
-                    if (lastPostion == recyclerView.getLayoutManager().getItemCount() - 1){
+                    if (lastPostion == recyclerView.getLayoutManager().getItemCount() - 1) {
                         loadMore();
                     }
                 }
@@ -168,28 +174,94 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadMore() {
-        getMovieList(++page);
+//        getMovieList(++page);
+        new MoviePopularTask().execute(buildUrl(++page));
     }
 
     private int findMax(int[] positions) {
         int max = positions[0];
-        for (int value: positions) {
-            if (value > max){
+        for (int value : positions) {
+            if (value > max) {
                 max = value;
             }
         }
         return max;
     }
 
-    @OnClick({R.id.tv_setting, R.id.ll_loading})
+    @OnClick({R.id.ll_loading})
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.tv_setting:
-                mPopupWindow.showAsDropDown(mTvSetting);
-                break;
             case R.id.ll_loading:
-                initData();
+//                initData();
+                init2Data();
                 break;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.movie_popular:
+                localUrl = Api.API_POPULAR;
+//                initData();
+                init2Data();
+                break;
+            case R.id.movie_vote:
+                localUrl = Api.API_TOP_RATED;
+//                initData();
+                init2Data();
+                break;
+        }
+        return true;
+    }
+
+    public class MoviePopularTask extends AsyncTask<URL,Void,String>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mTvLoading.setText(getResources().getString(R.string.net_loading));
+            mLlLoading.setVisibility(View.VISIBLE);
+            mPbLoading.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(URL... params) {
+            String result = "";
+            try {
+                result = ApiUtils.getResponseFromHttpUrl(params[0]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            mLlLoading.setVisibility(View.GONE);
+            super.onPostExecute(s);
+            if (!TextUtils.isEmpty(s))
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+                JSONArray results = jsonObject.getJSONArray("results");
+                List<MovieEntity> list = new ArrayList<>();
+                for (int i = 0; i < results.length(); i++) {
+                    MovieEntity movieEntity = new MovieEntity();
+                    movieEntity.poster_path = results.getJSONObject(i).getString("poster_path");
+                    movieEntity.id = results.getJSONObject(i).getInt("id");
+                    list.add(movieEntity);
+                }
+                mList.addAll(list);
+                mPosterAdapter.update(list);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
