@@ -27,6 +27,7 @@ import com.yangtianyu.net.ApiUtils;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.utils.JumpUtils;
 import com.yangtianyu.utils.LogUtils;
+import com.yangtianyu.utils.UiUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONArray;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private PosterAdapter mPosterAdapter;
     private int page = 1;
     private String localUrl = Api.API_POPULAR;
+    private boolean isError = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +195,9 @@ public class MainActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.ll_loading:
 //                initData();
-                init2Data();
+                if (isError){
+                    init2Data();
+                }
                 break;
         }
     }
@@ -244,24 +248,30 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            mLlLoading.setVisibility(View.GONE);
             super.onPostExecute(s);
-            if (!TextUtils.isEmpty(s))
-            try {
-                JSONObject jsonObject = new JSONObject(s);
-                JSONArray results = jsonObject.getJSONArray("results");
-                List<MovieEntity> list = new ArrayList<>();
-                for (int i = 0; i < results.length(); i++) {
-                    MovieEntity movieEntity = new MovieEntity();
-                    movieEntity.poster_path = results.getJSONObject(i).getString("poster_path");
-                    movieEntity.id = results.getJSONObject(i).getInt("id");
-                    list.add(movieEntity);
+            mLlLoading.setVisibility(View.GONE);
+            if (!TextUtils.isEmpty(s)){
+                isError = false;
+                try {
+                    JSONObject jsonObject = new JSONObject(s);
+                    JSONArray results = jsonObject.getJSONArray("results");
+                    List<MovieEntity> list = new ArrayList<>();
+                    for (int i = 0; i < results.length(); i++) {
+                        MovieEntity movieEntity = new MovieEntity();
+                        movieEntity.poster_path = results.getJSONObject(i).getString("poster_path");
+                        movieEntity.id = results.getJSONObject(i).getInt("id");
+                        list.add(movieEntity);
+                    }
+                    mList.addAll(list);
+                    mPosterAdapter.update(list);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                mList.addAll(list);
-                mPosterAdapter.update(list);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            }else {
+                UiUtils.showNetError(mLlLoading,mTvLoading,mPbLoading);
+                isError = true;
             }
+
         }
     }
 }
