@@ -3,6 +3,7 @@ package com.yangtianyu.net;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -50,15 +51,40 @@ public class ApiUtils {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             InputStream in = urlConnection.getInputStream();
-            Scanner scanner = new Scanner(in);
-            scanner.useDelimiter("\\A");
-            if (scanner.hasNext()){
-                return scanner.next();
-            }else {
-                return null;
-            }
+            return getStringFromInputStream(in);
+//            Scanner scanner = new Scanner(in);
+//            scanner.useDelimiter("\\A");
+//            if (scanner.hasNext()){
+//                return scanner.next();
+//            }else {
+//                return null;
+//            }
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+
+    private static String getStringFromInputStream(InputStream in) {
+        String result = "";
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = -1;
+        try {
+            while ((len = in.read(buffer)) != -1){
+                os.write(buffer,0,len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                result = os.toString();
+                in.close();
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 }

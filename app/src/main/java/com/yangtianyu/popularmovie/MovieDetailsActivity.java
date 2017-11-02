@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -29,34 +30,23 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.Call;
 
 /**
  * Created by yangtianyu on 2017/10/26.
  */
 
-public class MovieDetailsActivity extends AppCompatActivity {
+public class MovieDetailsActivity extends AppCompatActivity implements View.OnClickListener{
 
-    @Bind(R.id.tv_title)
-    TextView mTvTitle;
-    @Bind(R.id.tv_overview)
-    TextView mTvOverview;
-    @Bind(R.id.tv_vote_average)
-    TextView mTvVoteAverage;
-    @Bind(R.id.tv_release_time)
-    TextView mTvReleaseTime;
-    @Bind(R.id.iv_poster)
-    ImageView mIvPoster;
-    @Bind(R.id.tool_bar)
+
     Toolbar mToolBar;
-    @Bind(R.id.pb_loading)
+    ImageView mIvPoster;
+    TextView mTvTitle;
+    TextView mTvVoteAverage;
+    TextView mTvReleaseTime;
+    TextView mTvOverview;
     ProgressBar mPbLoading;
-    @Bind(R.id.tv_loading)
     TextView mTvLoading;
-    @Bind(R.id.ll_loading)
     LinearLayout mLlLoading;
     private String mMovie_id = "";
     private URL mUrl;
@@ -65,7 +55,15 @@ public class MovieDetailsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
-        ButterKnife.bind(this);
+        mToolBar = (Toolbar) findViewById(R.id.tool_bar);
+        mIvPoster = (ImageView) findViewById(R.id.iv_poster);
+        mTvTitle = (TextView) findViewById(R.id.tv_title);
+        mTvVoteAverage = (TextView) findViewById(R.id.tv_vote_average);
+        mTvReleaseTime = (TextView) findViewById(R.id.tv_release_time);
+        mTvOverview = (TextView) findViewById(R.id.tv_overview);
+        mPbLoading = (ProgressBar) findViewById(R.id.pb_loading);
+        mLlLoading = (LinearLayout) findViewById(R.id.ll_loading);
+        mLlLoading.setOnClickListener(this);
         mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
         mToolBar.setTitle(getResources().getString(R.string.movie_detail));
         setSupportActionBar(mToolBar);
@@ -97,9 +95,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
         return url;
     }
 
-    @OnClick(R.id.ll_loading)
-    public void onClick() {
-        getData();
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.ll_loading){
+            getData();
+        }
     }
 
     public class MovieDetailTask extends AsyncTask<URL, Void, String> {

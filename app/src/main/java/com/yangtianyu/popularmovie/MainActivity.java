@@ -35,34 +35,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.logging.ErrorManager;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.Call;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    @Bind(R.id.rv_movie_poster)
-    RecyclerView mRvMoviePoster;
-    @Bind(R.id.pb_loading)
-    ProgressBar mPbLoading;
-    @Bind(R.id.tv_loading)
-    TextView mTvLoading;
-    @Bind(R.id.ll_loading)
-    LinearLayout mLlLoading;
-    @Bind(R.id.activity_main)
-    LinearLayout mActivityMain;
-    @Bind(R.id.tool_bar)
+
     Toolbar mToolBar;
+    RecyclerView mRvMoviePoster;
+    ProgressBar mPbLoading;
+    TextView mTvLoading;
+    LinearLayout mLlLoading;
+    LinearLayout mActivityMain;
     private List<MovieEntity> mList;
     private PosterAdapter mPosterAdapter;
     private int page = 1;
@@ -73,7 +61,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        mToolBar = (Toolbar) findViewById(R.id.tool_bar);
+        mRvMoviePoster = (RecyclerView) findViewById(R.id.rv_movie_poster);
+        mPbLoading = (ProgressBar) findViewById(R.id.pb_loading);
+        mTvLoading = (TextView) findViewById(R.id.tv_loading);
+        mLlLoading = (LinearLayout) findViewById(R.id.ll_loading);
+        mActivityMain = (LinearLayout) findViewById(R.id.activity_main);
+        mLlLoading.setOnClickListener(this);
         mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
         mToolBar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(mToolBar);
@@ -95,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 .appendQueryParameter(Api.API_KEY, Constant.API_KEY)
                 .appendQueryParameter(Api.LANGUAGE, Constant.LANGUAGE)
                 .appendQueryParameter(Api.REGION, Constant.REGION)
-                .appendQueryParameter(Api.PAGE, page+"").build();
+                .appendQueryParameter(Api.PAGE, page + "").build();
         try {
             url = new URL(build.toString());
         } catch (MalformedURLException e) {
@@ -190,12 +184,11 @@ public class MainActivity extends AppCompatActivity {
         return max;
     }
 
-    @OnClick({R.id.ll_loading})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ll_loading:
 //                initData();
-                if (isError){
+                if (isError) {
                     init2Data();
                 }
                 break;
@@ -204,13 +197,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main,menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.movie_popular:
                 localUrl = Api.API_POPULAR;
 //                initData();
@@ -225,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public class MoviePopularTask extends AsyncTask<URL,Void,String>{
+    public class MoviePopularTask extends AsyncTask<URL, Void, String> {
 
         @Override
         protected void onPreExecute() {
@@ -250,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             mLlLoading.setVisibility(View.GONE);
-            if (!TextUtils.isEmpty(s)){
+            if (!TextUtils.isEmpty(s)) {
                 isError = false;
                 try {
                     JSONObject jsonObject = new JSONObject(s);
@@ -267,8 +260,8 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }else {
-                UiUtils.showNetError(mLlLoading,mTvLoading,mPbLoading);
+            } else {
+                UiUtils.showNetError(mLlLoading, mTvLoading, mPbLoading);
                 isError = true;
             }
 
