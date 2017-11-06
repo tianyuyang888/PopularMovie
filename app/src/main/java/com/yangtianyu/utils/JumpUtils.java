@@ -3,6 +3,8 @@ package com.yangtianyu.utils;
 import android.content.Context;
 import android.content.Intent;
 
+import com.yangtianyu.bean.MovieDetailsEntity;
+import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.popularmovie.MovieDetailsActivity;
 
@@ -12,9 +14,9 @@ import com.yangtianyu.popularmovie.MovieDetailsActivity;
 
 public class JumpUtils {
 
-    public static void goMovieDetails(Context context,int movieId){
+    public static void goMovieDetails(Context context, MovieEntity movieId){
         Intent intent = new Intent(context,MovieDetailsActivity.class);
-        intent.putExtra(Constant.MOVIE_ID,movieId+"");
+        intent.putExtra(Constant.MOVIE_ID,movieId);
         context.startActivity(intent);
     }
 }

@@ -1,9 +1,12 @@
 package com.yangtianyu.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by yangtianyu on 2017/10/25.
  */
-public class MovieEntity {
+public class MovieEntity implements Parcelable {
 //    "vote_count": 2682,
 //            "id": 346364,
 //            "video": false,
@@ -27,6 +30,7 @@ public class MovieEntity {
     public Boolean video;
     public Boolean adult;
     public String title = "";
+    public double vote_average;
     public float popularity;
     public String poster_path = "";
     public String original_language = "";
@@ -35,4 +39,59 @@ public class MovieEntity {
     public String overview = "";
     public String release_date = "";
     public int[] genre_ids;
+
+    public MovieEntity() {
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.vote_count);
+        dest.writeInt(this.id);
+        dest.writeValue(this.video);
+        dest.writeValue(this.adult);
+        dest.writeString(this.title);
+        dest.writeDouble(this.vote_average);
+        dest.writeFloat(this.popularity);
+        dest.writeString(this.poster_path);
+        dest.writeString(this.original_language);
+        dest.writeString(this.original_title);
+        dest.writeString(this.backdrop_path);
+        dest.writeString(this.overview);
+        dest.writeString(this.release_date);
+        dest.writeIntArray(this.genre_ids);
+    }
+
+    protected MovieEntity(Parcel in) {
+        this.vote_count = in.readInt();
+        this.id = in.readInt();
+        this.video = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.adult = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.title = in.readString();
+        this.vote_average = in.readDouble();
+        this.popularity = in.readFloat();
+        this.poster_path = in.readString();
+        this.original_language = in.readString();
+        this.original_title = in.readString();
+        this.backdrop_path = in.readString();
+        this.overview = in.readString();
+        this.release_date = in.readString();
+        this.genre_ids = in.createIntArray();
+    }
+
+    public static final Creator<MovieEntity> CREATOR = new Creator<MovieEntity>() {
+        @Override
+        public MovieEntity createFromParcel(Parcel source) {
+            return new MovieEntity(source);
+        }
+
+        @Override
+        public MovieEntity[] newArray(int size) {
+            return new MovieEntity[size];
+        }
+    };
 }

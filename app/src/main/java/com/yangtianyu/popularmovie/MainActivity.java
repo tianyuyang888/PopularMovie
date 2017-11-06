@@ -40,16 +40,25 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import okhttp3.Call;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
 
+    @BindView(R.id.tool_bar)
     Toolbar mToolBar;
+    @BindView(R.id.rv_movie_poster)
     RecyclerView mRvMoviePoster;
+    @BindView(R.id.pb_loading)
     ProgressBar mPbLoading;
+    @BindView(R.id.tv_loading)
     TextView mTvLoading;
+    @BindView(R.id.ll_loading)
     LinearLayout mLlLoading;
+    @BindView(R.id.activity_main)
     LinearLayout mActivityMain;
     private List<MovieEntity> mList;
     private PosterAdapter mPosterAdapter;
@@ -61,13 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mToolBar = (Toolbar) findViewById(R.id.tool_bar);
-        mRvMoviePoster = (RecyclerView) findViewById(R.id.rv_movie_poster);
-        mPbLoading = (ProgressBar) findViewById(R.id.pb_loading);
-        mTvLoading = (TextView) findViewById(R.id.tv_loading);
-        mLlLoading = (LinearLayout) findViewById(R.id.ll_loading);
-        mActivityMain = (LinearLayout) findViewById(R.id.activity_main);
-        mLlLoading.setOnClickListener(this);
+        ButterKnife.bind(this);
         mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
         mToolBar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(mToolBar);
@@ -164,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPosterAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void OnClickListener(int position) {
-                JumpUtils.goMovieDetails(MainActivity.this, mList.get(position).id);
+                JumpUtils.goMovieDetails(MainActivity.this, mList.get(position));
             }
         });
     }
@@ -184,16 +187,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return max;
     }
 
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.ll_loading:
-//                initData();
-                if (isError) {
-                    init2Data();
-                }
-                break;
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -216,6 +209,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         return true;
+    }
+
+    @OnClick({R.id.ll_loading})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.ll_loading:
+//                initData();
+                if (isError) {
+                    init2Data();
+                }
+                break;
+        }
     }
 
     public class MoviePopularTask extends AsyncTask<URL, Void, String> {
@@ -245,20 +250,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mLlLoading.setVisibility(View.GONE);
             if (!TextUtils.isEmpty(s)) {
                 isError = false;
-                try {
-                    JSONObject jsonObject = new JSONObject(s);
-                    JSONArray results = jsonObject.getJSONArray("results");
-                    List<MovieEntity> list = new ArrayList<>();
-                    for (int i = 0; i < results.length(); i++) {
-                        MovieEntity movieEntity = new MovieEntity();
-                        movieEntity.poster_path = results.getJSONObject(i).getString("poster_path");
-                        movieEntity.id = results.getJSONObject(i).getInt("id");
-                        list.add(movieEntity);
-                    }
-                    mList.addAll(list);
-                    mPosterAdapter.update(list);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                PopularEntity popularEntity = new Gson().fromJson(s, PopularEntity.class);
+                if (popularEntity != null && popularEntity.results != null) {
+                    mList.addAll(popularEntity.results);
+                    mPosterAdapter.update(popularEntity.results);
                 }
             } else {
                 UiUtils.showNetError(mLlLoading, mTvLoading, mPbLoading);

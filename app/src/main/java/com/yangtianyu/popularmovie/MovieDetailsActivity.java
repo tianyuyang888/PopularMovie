@@ -3,6 +3,7 @@ package com.yangtianyu.popularmovie;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.yangtianyu.bean.MovieDetailsEntity;
+import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.net.Api;
 import com.yangtianyu.net.ApiUtils;
 import com.yangtianyu.net.Constant;
@@ -30,40 +32,45 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import okhttp3.Call;
 
 /**
  * Created by yangtianyu on 2017/10/26.
  */
 
-public class MovieDetailsActivity extends AppCompatActivity implements View.OnClickListener{
+public class MovieDetailsActivity extends AppCompatActivity {
 
 
+    @BindView(R.id.tool_bar)
     Toolbar mToolBar;
+    @BindView(R.id.iv_poster)
     ImageView mIvPoster;
+    @BindView(R.id.tv_title)
     TextView mTvTitle;
+    @BindView(R.id.tv_vote_average)
     TextView mTvVoteAverage;
+    @BindView(R.id.tv_release_time)
     TextView mTvReleaseTime;
+    @BindView(R.id.tv_overview)
     TextView mTvOverview;
+    @BindView(R.id.pb_loading)
     ProgressBar mPbLoading;
+    @BindView(R.id.tv_loading)
     TextView mTvLoading;
+    @BindView(R.id.ll_loading)
     LinearLayout mLlLoading;
     private String mMovie_id = "";
     private URL mUrl;
+    private MovieEntity mMovieEntity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
-        mToolBar = (Toolbar) findViewById(R.id.tool_bar);
-        mIvPoster = (ImageView) findViewById(R.id.iv_poster);
-        mTvTitle = (TextView) findViewById(R.id.tv_title);
-        mTvVoteAverage = (TextView) findViewById(R.id.tv_vote_average);
-        mTvReleaseTime = (TextView) findViewById(R.id.tv_release_time);
-        mTvOverview = (TextView) findViewById(R.id.tv_overview);
-        mPbLoading = (ProgressBar) findViewById(R.id.pb_loading);
-        mLlLoading = (LinearLayout) findViewById(R.id.ll_loading);
-        mLlLoading.setOnClickListener(this);
+        ButterKnife.bind(this);
         mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
         mToolBar.setTitle(getResources().getString(R.string.movie_detail));
         setSupportActionBar(mToolBar);
@@ -71,106 +78,24 @@ public class MovieDetailsActivity extends AppCompatActivity implements View.OnCl
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (getIntent() != null) {
             mMovie_id = getIntent().getStringExtra(Constant.MOVIE_ID);
+            mMovieEntity = getIntent().getParcelableExtra(Constant.MOVIE_ID);
         }
-        getData();
-//        initData();
+        setData();
     }
 
-    private void getData() {
-        URL url = buildUrl(Api.BASE_URL + mMovie_id);
-        new MovieDetailTask().execute(url);
+    private void setData() {
+        mTvTitle.setText(getResources().getString(R.string.movie_title) + ":" + mMovieEntity.title);
+        mTvVoteAverage.setText(getResources().getString(R.string.movie_vote_average) + ":" + mMovieEntity.vote_average);
+        mTvReleaseTime.setText(getResources().getString(R.string.movie_release_time) + ":" + mMovieEntity.release_date);
+        mTvOverview.setText(getResources().getString(R.string.movie_overview) + ":" + mMovieEntity.overview);
+        ImageUtils.loadImage(Api.API_IMAGE_W500, mMovieEntity.poster_path, mIvPoster);
     }
 
-    private URL buildUrl(String uri) {
-        URL url = null;
-        Uri build = Uri.parse(uri).buildUpon()
-                .appendQueryParameter(Api.API_KEY, Constant.API_KEY)
-                .appendQueryParameter(Api.LANGUAGE, Constant.LANGUAGE)
-                .build();
-        try {
-            url = new URL(build.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.ll_loading){
-            getData();
-        }
-    }
-
-    public class MovieDetailTask extends AsyncTask<URL, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            UiUtils.showLoading(mLlLoading, mTvLoading, mPbLoading);
-        }
-
-        @Override
-        protected String doInBackground(URL... params) {
-            String result = "";
-            try {
-                result = ApiUtils.getResponseFromHttpUrl(params[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            UiUtils.hideLoading(mLlLoading);
-            if (!TextUtils.isEmpty(s)) {
-                try {
-                    JSONObject jsonObject = new JSONObject(s);
-                    String title = jsonObject.getString("title");
-                    double vote_average = jsonObject.optDouble("vote_average");
-                    String release_date = jsonObject.optString("release_date");
-                    String overview = jsonObject.optString("overview");
-                    String poster_path = jsonObject.optString("poster_path");
-                    mTvTitle.setText(getResources().getString(R.string.movie_title) + ":" + title);
-                    mTvVoteAverage.setText(getResources().getString(R.string.movie_vote_average) + ":" + vote_average);
-                    mTvReleaseTime.setText(getResources().getString(R.string.movie_release_time) + ":" + release_date);
-                    mTvOverview.setText(getResources().getString(R.string.movie_overview) + ":" + overview);
-                    ImageUtils.loadImage(Api.API_IMAGE_W500, poster_path, mIvPoster);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                UiUtils.showNetError(mLlLoading, mTvLoading, mPbLoading);
-            }
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home)
             finish();
         return true;
-    }
-
-    private void initData() {
-        ApiUtils.getMovieDetails(mMovie_id, new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                MovieDetailsEntity movieDetailsEntity = new Gson().fromJson(response, MovieDetailsEntity.class);
-                mTvTitle.setText(getResources().getString(R.string.movie_title) + ":" + movieDetailsEntity.title);
-                mTvVoteAverage.setText(getResources().getString(R.string.movie_vote_average) + ":" + movieDetailsEntity.vote_average);
-                mTvReleaseTime.setText(getResources().getString(R.string.movie_release_time) + ":" + movieDetailsEntity.release_date);
-                mTvOverview.setText(getResources().getString(R.string.movie_overview) + ":" + movieDetailsEntity.overview);
-                ImageUtils.loadImage(Api.API_IMAGE_W500, movieDetailsEntity.poster_path, mIvPoster);
-            }
-        });
     }
 }

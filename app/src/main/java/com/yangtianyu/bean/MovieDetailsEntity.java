@@ -1,12 +1,16 @@
 package com.yangtianyu.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by yangtianyu on 2017/10/26.
  */
 
-public class MovieDetailsEntity {
+public class MovieDetailsEntity implements Parcelable {
 
     /**
      * adult : false
@@ -63,4 +67,84 @@ public class MovieDetailsEntity {
     public List<LanguageEntity> spoken_languages;
 
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte(this.adult ? (byte) 1 : (byte) 0);
+        dest.writeString(this.backdrop_path);
+        dest.writeParcelable(this.belongs_to_collection, flags);
+        dest.writeDouble(this.budget);
+        dest.writeString(this.homepage);
+        dest.writeInt(this.id);
+        dest.writeString(this.imdb_id);
+        dest.writeString(this.original_language);
+        dest.writeString(this.original_title);
+        dest.writeString(this.overview);
+        dest.writeDouble(this.popularity);
+        dest.writeString(this.poster_path);
+        dest.writeString(this.release_date);
+        dest.writeDouble(this.revenue);
+        dest.writeInt(this.runtime);
+        dest.writeString(this.status);
+        dest.writeString(this.tagline);
+        dest.writeString(this.title);
+        dest.writeByte(this.video ? (byte) 1 : (byte) 0);
+        dest.writeDouble(this.vote_average);
+        dest.writeInt(this.vote_count);
+        dest.writeList(this.genres);
+        dest.writeList(this.production_companies);
+        dest.writeList(this.production_countries);
+        dest.writeList(this.spoken_languages);
+    }
+
+    public MovieDetailsEntity() {
+    }
+
+    protected MovieDetailsEntity(Parcel in) {
+        this.adult = in.readByte() != 0;
+        this.backdrop_path = in.readString();
+        this.belongs_to_collection = in.readParcelable(MovieCollectionEntity.class.getClassLoader());
+        this.budget = in.readDouble();
+        this.homepage = in.readString();
+        this.id = in.readInt();
+        this.imdb_id = in.readString();
+        this.original_language = in.readString();
+        this.original_title = in.readString();
+        this.overview = in.readString();
+        this.popularity = in.readDouble();
+        this.poster_path = in.readString();
+        this.release_date = in.readString();
+        this.revenue = in.readDouble();
+        this.runtime = in.readInt();
+        this.status = in.readString();
+        this.tagline = in.readString();
+        this.title = in.readString();
+        this.video = in.readByte() != 0;
+        this.vote_average = in.readDouble();
+        this.vote_count = in.readInt();
+        this.genres = new ArrayList<GenresEntity>();
+        in.readList(this.genres, GenresEntity.class.getClassLoader());
+        this.production_companies = new ArrayList<CompanyEntity>();
+        in.readList(this.production_companies, CompanyEntity.class.getClassLoader());
+        this.production_countries = new ArrayList<CountryEntity>();
+        in.readList(this.production_countries, CountryEntity.class.getClassLoader());
+        this.spoken_languages = new ArrayList<LanguageEntity>();
+        in.readList(this.spoken_languages, LanguageEntity.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<MovieDetailsEntity> CREATOR = new Parcelable.Creator<MovieDetailsEntity>() {
+        @Override
+        public MovieDetailsEntity createFromParcel(Parcel source) {
+            return new MovieDetailsEntity(source);
+        }
+
+        @Override
+        public MovieDetailsEntity[] newArray(int size) {
+            return new MovieDetailsEntity[size];
+        }
+    };
 }
