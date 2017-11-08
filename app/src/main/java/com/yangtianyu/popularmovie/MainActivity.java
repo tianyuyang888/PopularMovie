@@ -75,16 +75,9 @@ public class MainActivity extends AppCompatActivity {
         mToolBar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(mToolBar);
         initView();
-        init2Data();
-//        initData();
+        initData();
     }
 
-    private void init2Data() {
-        mList.clear();
-        mPosterAdapter.clearData();
-        page = 1;
-        new MoviePopularTask().execute(buildUrl(page));
-    }
 
     private URL buildUrl(int page) {
         URL url = null;
@@ -108,20 +101,21 @@ public class MainActivity extends AppCompatActivity {
         mLlLoading.setVisibility(View.VISIBLE);
         mPbLoading.setVisibility(View.VISIBLE);
         mTvLoading.setText(getResources().getString(R.string.net_loading));
-        getMovieList(1);
+        page = 1;
+        getMovieList(page);
     }
 
     private void getMovieList(int i) {
         ApiUtils.getPoster(localUrl, i, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                mPbLoading.setVisibility(View.INVISIBLE);
-                mTvLoading.setText(getResources().getString(R.string.net_error));
+                isError = true;
+                UiUtils.showNetError(mLlLoading,mTvLoading,mPbLoading);
             }
 
             @Override
             public void onResponse(String response, int id) {
-                mLlLoading.setVisibility(View.GONE);
+                UiUtils.hideLoading(mLlLoading);
                 LogUtils.d(response);
                 PopularEntity popularEntity = new Gson().fromJson(response, PopularEntity.class);
                 if (popularEntity != null && popularEntity.results != null) {
@@ -141,19 +135,19 @@ public class MainActivity extends AppCompatActivity {
         mRvMoviePoster.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                int lastPostion = -1;
+                int lastPosition = -1;
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
                     if (layoutManager instanceof GridLayoutManager) {
-                        lastPostion = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
+                        lastPosition = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
                     } else if (layoutManager instanceof LinearLayoutManager) {
-                        lastPostion = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+                        lastPosition = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
                     } else if (layoutManager instanceof StaggeredGridLayoutManager) {
                         int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
                         ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions);
-                        lastPostion = findMax(positions);
+                        lastPosition = findMax(positions);
                     }
-                    if (lastPostion == recyclerView.getLayoutManager().getItemCount() - 1) {
+                    if (lastPosition == recyclerView.getLayoutManager().getItemCount() - 1) {
                         loadMore();
                     }
                 }
@@ -173,8 +167,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadMore() {
-//        getMovieList(++page);
-        new MoviePopularTask().execute(buildUrl(++page));
+        getMovieList(++page);
     }
 
     private int findMax(int[] positions) {
@@ -199,13 +192,11 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.movie_popular:
                 localUrl = Api.API_POPULAR;
-//                initData();
-                init2Data();
+                initData();
                 break;
             case R.id.movie_vote:
                 localUrl = Api.API_TOP_RATED;
-//                initData();
-                init2Data();
+                initData();
                 break;
         }
         return true;
@@ -215,51 +206,11 @@ public class MainActivity extends AppCompatActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_loading:
-//                initData();
                 if (isError) {
-                    init2Data();
+                    initData();
                 }
                 break;
         }
     }
 
-    public class MoviePopularTask extends AsyncTask<URL, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mTvLoading.setText(getResources().getString(R.string.net_loading));
-            mLlLoading.setVisibility(View.VISIBLE);
-            mPbLoading.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(URL... params) {
-            String result = "";
-            try {
-                result = ApiUtils.getResponseFromHttpUrl(params[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            mLlLoading.setVisibility(View.GONE);
-            if (!TextUtils.isEmpty(s)) {
-                isError = false;
-                PopularEntity popularEntity = new Gson().fromJson(s, PopularEntity.class);
-                if (popularEntity != null && popularEntity.results != null) {
-                    mList.addAll(popularEntity.results);
-                    mPosterAdapter.update(popularEntity.results);
-                }
-            } else {
-                UiUtils.showNetError(mLlLoading, mTvLoading, mPbLoading);
-                isError = true;
-            }
-
-        }
-    }
 }

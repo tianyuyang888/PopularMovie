@@ -16,7 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".MovieDetailsActivity"/>
+        <activity android:name=".MovieDetailsActivity"
+                  android:parentActivityName=".MainActivity">
+            <!--parent activity mete-data to support 4.0 and lower-->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
     </application>
 
 </manifest>
