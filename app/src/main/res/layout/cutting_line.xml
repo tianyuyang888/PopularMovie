@@ -3,7 +3,7 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent">
     <TextView
-        android:background="@color/bg_69"
+        android:background="@color/gray_light"
         android:layout_width="match_parent"
         android:layout_height="1px"/>
 </LinearLayout>

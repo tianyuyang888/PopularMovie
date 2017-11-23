@@ -1,44 +1,27 @@
 package com.yangtianyu.popularmovie;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.yangtianyu.bean.MovieDetailsEntity;
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.net.Api;
-import com.yangtianyu.net.ApiUtils;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.utils.ImageUtils;
-import com.yangtianyu.utils.UiUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import okhttp3.Call;
 
 /**
  * Created by yangtianyu on 2017/10/26.

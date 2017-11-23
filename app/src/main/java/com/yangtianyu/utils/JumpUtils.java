@@ -3,7 +3,6 @@ package com.yangtianyu.utils;
 import android.content.Context;
 import android.content.Intent;
 
-import com.yangtianyu.bean.MovieDetailsEntity;
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.popularmovie.MovieDetailsActivity;
