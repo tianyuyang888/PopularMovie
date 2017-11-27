@@ -40,6 +40,28 @@ public class ApiUtils {
     }
 
     /**
+     * 获取电影的视频
+     * @param movieId
+     * @param callback
+     */
+    public static void getMovieVideos(String movieId,Callback callback){
+        OkHttpUtils.get().url(Api.BASE_URL+movieId+Api.VIDEOS)
+                .addParams(Api.API_KEY,Constant.API_KEY)
+                .build().execute(callback);
+    }
+
+    /**
+     * 获取电影的评论
+     * @param movieId
+     * @param callback
+     */
+    public static void getMovieReviews(String movieId,Callback callback){
+        OkHttpUtils.get().url(Api.BASE_URL+movieId+Api.REVIEWS)
+                .addParams(Api.API_KEY,Constant.API_KEY)
+                .build().execute(callback);
+    }
+
+    /**
      * 使用HttpURLConnection请求网络
      * @param url
      * @return

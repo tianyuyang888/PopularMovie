@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getMovieList(int i) {
+
         ApiUtils.getPoster(localUrl, i, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 if (popularEntity != null && popularEntity.results != null) {
                     mList.addAll(popularEntity.results);
                     mPosterAdapter.update(popularEntity.results);
+
                 }
             }
         });

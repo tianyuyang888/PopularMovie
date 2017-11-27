@@ -8,20 +8,21 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.net.Api;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.utils.ImageUtils;
+import com.yangtianyu.utils.JumpUtils;
 
 import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by yangtianyu on 2017/10/26.
@@ -42,15 +43,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
     TextView mTvReleaseTime;
     @BindView(R.id.tv_overview)
     TextView mTvOverview;
-    @BindView(R.id.pb_loading)
-    ProgressBar mPbLoading;
-    @BindView(R.id.tv_loading)
-    TextView mTvLoading;
-    @BindView(R.id.ll_loading)
-    LinearLayout mLlLoading;
+    @BindView(R.id.iv_trailer)
+    ImageView mIvTrailer;
     private String mMovie_id = "";
     private URL mUrl;
     private MovieEntity mMovieEntity;
+    private String trailer_id = "";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,7 +77,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
@@ -99,5 +97,18 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @OnClick({R.id.iv_poster, R.id.iv_trailer})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.iv_poster:
+                break;
+            case R.id.iv_trailer:
+                trailer_id = "xKJmEC5ieOk";
+                JumpUtils.watchYoutubeVideo(this,trailer_id);
+                break;
+        }
     }
 }
