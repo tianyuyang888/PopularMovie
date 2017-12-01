@@ -71,13 +71,7 @@
                     android:text="@string/movie_trailer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
-                <ImageView
-                    android:id="@+id/iv_trailer"
-                    android:src="@drawable/picasso_placeholder"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+
             </LinearLayout>
         </ScrollView>
 </LinearLayout>
