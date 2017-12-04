@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.net.Constant;
+import com.yangtianyu.popularmovie.AllCommentsActivity;
 import com.yangtianyu.popularmovie.MovieDetailsActivity;
 
 /**
@@ -41,4 +42,9 @@ public class JumpUtils {
         }
     }
 
+    public static void goMovieAllComments(Context context, String movie_id) {
+        Intent intent = new Intent(context, AllCommentsActivity.class);
+        intent.putExtra(Constant.MOVIE_ID, movie_id);
+        context.startActivity(intent);
+    }
 }

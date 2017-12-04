@@ -45,6 +45,9 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-
+    <style name="tv_14_green">
+        <item name="android:textSize">@dimen/font_14</item>
+        <item name="android:textColor">@color/green</item>
+    </style>
 
 </resources>

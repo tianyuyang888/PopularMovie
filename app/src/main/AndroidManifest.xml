@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.yangtianyu.popularmovie">
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -21,12 +22,10 @@
         </activity>
         <activity
             android:name=".MovieDetailsActivity"
-            android:parentActivityName=".MainActivity">
-            <!--parent activity mete-data to support 4.0 and lower-->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+            android:parentActivityName=".MainActivity"
+            tools:targetApi="jelly_bean">
         </activity>
+        <activity android:name=".AllCommentsActivity"/>
     </application>
 
 </manifest>

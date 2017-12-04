@@ -7,22 +7,36 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.yangtianyu.bean.MovieCommentEntity;
+import com.yangtianyu.bean.MovieCommentListEntity;
 import com.yangtianyu.bean.MovieEntity;
+import com.yangtianyu.bean.MovieTrailerEntity;
+import com.yangtianyu.bean.MovieTrailerListEntity;
 import com.yangtianyu.net.Api;
+import com.yangtianyu.net.ApiUtils;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.utils.ImageUtils;
 import com.yangtianyu.utils.JumpUtils;
+import com.yangtianyu.utils.LogUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
 
 /**
  * Created by yangtianyu on 2017/10/26.
@@ -43,12 +57,24 @@ public class MovieDetailsActivity extends AppCompatActivity {
     TextView mTvReleaseTime;
     @BindView(R.id.tv_overview)
     TextView mTvOverview;
-    @BindView(R.id.iv_trailer)
-    ImageView mIvTrailer;
+    @BindView(R.id.ll_trailer)
+    LinearLayout mLlTrailer;
+    @BindView(R.id.tv_comment)
+    TextView mTvComment;
+    @BindView(R.id.ll_comment)
+    LinearLayout mLlComment;
+    @BindView(R.id.pb_loading)
+    ProgressBar mPbLoading;
+    @BindView(R.id.tv_loading)
+    TextView mTvLoading;
+    @BindView(R.id.ll_loading)
+    LinearLayout mLlLoading;
     private String mMovie_id = "";
     private URL mUrl;
     private MovieEntity mMovieEntity;
     private String trailer_id = "";
+    private List<MovieTrailerEntity> mResults = new ArrayList<>();
+    private List<MovieCommentEntity> mCommentEntityList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,10 +87,70 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (getIntent() != null) {
-            mMovie_id = getIntent().getStringExtra(Constant.MOVIE_ID);
             mMovieEntity = getIntent().getParcelableExtra(Constant.MOVIE_ID);
+            mMovie_id = mMovieEntity.id + "";
         }
+        initData();
         setData();
+    }
+
+    private void initData() {
+        ApiUtils.getMovieVideos(mMovie_id, new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                LogUtils.d(response);
+                MovieTrailerListEntity movieTrailerListEntity = new Gson().fromJson(response, MovieTrailerListEntity.class);
+                if (movieTrailerListEntity != null && movieTrailerListEntity.results != null)
+                    mResults = movieTrailerListEntity.results;
+                addTrailer();
+            }
+        });
+
+        ApiUtils.getMovieReviews(mMovie_id, new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                mLlLoading.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                LogUtils.d(response);
+                mLlLoading.setVisibility(View.GONE);
+                MovieCommentListEntity movieCommentListEntity = new Gson().fromJson(response, MovieCommentListEntity.class);
+                if (movieCommentListEntity != null) {
+                    int total_results = movieCommentListEntity.total_results;
+                    if (total_results < 5) {
+                        mTvComment.setVisibility(View.GONE);
+                    } else {
+                        mTvComment.setVisibility(View.VISIBLE);
+                        mTvComment.setText("全部评论" + total_results + "个");
+                    }
+                    if (movieCommentListEntity.results != null)
+                        mCommentEntityList = movieCommentListEntity.results;
+                    addComment();
+                }
+            }
+        });
+    }
+
+    private void addComment() {
+        for (int i = 0; i < (mCommentEntityList.size() < 5 ? mCommentEntityList.size() : 5); i++) {
+            mLlComment.addView(createCommentView(mCommentEntityList.get(i)));
+        }
+    }
+
+    private View createCommentView(MovieCommentEntity movieCommentEntity) {
+        View inflate = LayoutInflater.from(this).inflate(R.layout.item_comment, null);
+        TextView tvName = (TextView) inflate.findViewById(R.id.tv_name);
+        TextView tvComment = (TextView) inflate.findViewById(R.id.tv_comment);
+        tvName.setText(movieCommentEntity.author + ":");
+        tvComment.setText(movieCommentEntity.content);
+        return inflate;
     }
 
     private void setData() {
@@ -73,6 +159,26 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mTvReleaseTime.setText(getResources().getString(R.string.movie_release_time) + ":" + mMovieEntity.release_date);
         mTvOverview.setText(getResources().getString(R.string.movie_overview) + ":" + mMovieEntity.overview);
         ImageUtils.loadImage(Api.API_IMAGE_W500, mMovieEntity.poster_path, mIvPoster);
+    }
+
+    private void addTrailer() {
+        for (int i = 0; i < mResults.size(); i++) {
+            mLlTrailer.addView(createTrailerView(mResults.get(i)));
+        }
+    }
+
+    private View createTrailerView(final MovieTrailerEntity movieTrailerEntity) {
+        View inflate = LayoutInflater.from(this).inflate(R.layout.item_trailer, null);
+        TextView tvName = (TextView) inflate.findViewById(R.id.tv_name);
+        ImageView ivPlay = (ImageView) inflate.findViewById(R.id.iv_play);
+        tvName.setText(movieTrailerEntity.name);
+        ivPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                JumpUtils.watchYoutubeVideo(MovieDetailsActivity.this, movieTrailerEntity.key);
+            }
+        });
+        return inflate;
     }
 
     @Override
@@ -100,15 +206,15 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
 
-    @OnClick({R.id.iv_poster, R.id.iv_trailer})
+    @OnClick({R.id.iv_poster, R.id.tv_comment})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.iv_poster:
                 break;
-            case R.id.iv_trailer:
-                trailer_id = "xKJmEC5ieOk";
-                JumpUtils.watchYoutubeVideo(this,trailer_id);
+            case R.id.tv_comment:
+                JumpUtils.goMovieAllComments(this,mMovie_id);
                 break;
         }
     }
+
 }
