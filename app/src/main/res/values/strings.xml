@@ -9,6 +9,7 @@
     <!--排序-->
     <string name="movie_popular">热门程度</string>
     <string name="movie_vote">评分高低</string>
+    <string name="movie_collection">收藏</string>
 
 
     <!--网络请求-->

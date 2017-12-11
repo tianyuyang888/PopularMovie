@@ -55,9 +55,10 @@ public class ApiUtils {
      * @param movieId
      * @param callback
      */
-    public static void getMovieReviews(String movieId,Callback callback){
+    public static void getMovieReviews(String movieId,int i,Callback callback){
         OkHttpUtils.get().url(Api.BASE_URL+movieId+Api.REVIEWS)
                 .addParams(Api.API_KEY,Constant.API_KEY)
+                .addParams(Api.API_PAGE,i+"")
                 .build().execute(callback);
     }
 

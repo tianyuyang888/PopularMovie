@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -99,12 +100,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getMovieList(int i) {
-
+        Log.d("aaaaa","getMovieList:"+i);
         ApiUtils.getPoster(localUrl, i, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
                 isError = true;
-                UiUtils.showNetError(mLlLoading,mTvLoading,mPbLoading);
+                UiUtils.showNetError(mLlLoading, mTvLoading, mPbLoading);
             }
 
             @Override
@@ -133,14 +134,8 @@ public class MainActivity extends AppCompatActivity {
                 int lastPosition = -1;
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                    if (layoutManager instanceof GridLayoutManager) {
-                        lastPosition = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
-                    } else if (layoutManager instanceof LinearLayoutManager) {
+                    if (layoutManager instanceof LinearLayoutManager) {
                         lastPosition = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
-                    } else if (layoutManager instanceof StaggeredGridLayoutManager) {
-                        int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
-                        ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions);
-                        lastPosition = findMax(positions);
                     }
                     if (lastPosition == recyclerView.getLayoutManager().getItemCount() - 1) {
                         loadMore();
@@ -164,17 +159,6 @@ public class MainActivity extends AppCompatActivity {
     private void loadMore() {
         getMovieList(++page);
     }
-
-    private int findMax(int[] positions) {
-        int max = positions[0];
-        for (int value : positions) {
-            if (value > max) {
-                max = value;
-            }
-        }
-        return max;
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

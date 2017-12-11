@@ -11,6 +11,7 @@ public class Api {
     public static final String REGION = "region";
     public static final String VIDEOS = "/videos";
     public static final String REVIEWS = "/reviews";
+    public static final String API_PAGE = "page";
     public static String API_IMAGE_W185 = "https://image.tmdb.org/t/p/w185";
     public static String API_IMAGE_W500 = "https://image.tmdb.org/t/p/w500";
     public static String BASE_URL = "https://api.themoviedb.org/3/movie/";

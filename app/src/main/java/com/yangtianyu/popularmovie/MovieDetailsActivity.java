@@ -105,13 +105,16 @@ public class MovieDetailsActivity extends AppCompatActivity {
             public void onResponse(String response, int id) {
                 LogUtils.d(response);
                 MovieTrailerListEntity movieTrailerListEntity = new Gson().fromJson(response, MovieTrailerListEntity.class);
-                if (movieTrailerListEntity != null && movieTrailerListEntity.results != null)
+                if (movieTrailerListEntity != null && movieTrailerListEntity.results != null && movieTrailerListEntity.results.size() > 0){
                     mResults = movieTrailerListEntity.results;
-                addTrailer();
+                    addTrailer();
+                }else{
+                    mLlTrailer.addView(createNoDataView("暂无预告"));
+                }
             }
         });
 
-        ApiUtils.getMovieReviews(mMovie_id, new StringCallback() {
+        ApiUtils.getMovieReviews(mMovie_id, 1, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
                 mLlLoading.setVisibility(View.GONE);
@@ -124,18 +127,28 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 MovieCommentListEntity movieCommentListEntity = new Gson().fromJson(response, MovieCommentListEntity.class);
                 if (movieCommentListEntity != null) {
                     int total_results = movieCommentListEntity.total_results;
-                    if (total_results < 5) {
+                    if (total_results <= 5) {
                         mTvComment.setVisibility(View.GONE);
                     } else {
                         mTvComment.setVisibility(View.VISIBLE);
                         mTvComment.setText("全部评论" + total_results + "个");
                     }
-                    if (movieCommentListEntity.results != null)
+                    if (movieCommentListEntity.results != null && movieCommentListEntity.results.size() > 0){
                         mCommentEntityList = movieCommentListEntity.results;
-                    addComment();
+                        addComment();
+                    }else {
+                        mLlComment.addView(createNoDataView("暂无评论"));
+                    }
                 }
             }
         });
+    }
+
+    private View createNoDataView(String noData) {
+        View inflate = LayoutInflater.from(this).inflate(R.layout.item_no_data, null);
+        TextView tv = (TextView) inflate.findViewById(R.id.tv_no_data);
+        tv.setText(noData);
+        return inflate;
     }
 
     private void addComment() {
@@ -212,7 +225,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             case R.id.iv_poster:
                 break;
             case R.id.tv_comment:
-                JumpUtils.goMovieAllComments(this,mMovie_id);
+                JumpUtils.goMovieAllComments(this, mMovie_id);
                 break;
         }
     }

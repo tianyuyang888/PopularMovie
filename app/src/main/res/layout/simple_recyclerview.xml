@@ -4,8 +4,14 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
     <include layout="@layout/too_bar"/>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <include layout="@layout/loading_item"/>
+    </RelativeLayout>
+
 </LinearLayout>

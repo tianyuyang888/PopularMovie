@@ -4,4 +4,6 @@
           android:title="@string/movie_popular"/>
     <item android:id="@+id/movie_vote"
           android:title="@string/movie_vote"/>
+    <item android:id="@+id/movie_collection"
+          android:title="@string/movie_collection"/>
 </menu>
