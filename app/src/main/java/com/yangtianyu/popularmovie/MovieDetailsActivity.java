@@ -1,6 +1,9 @@
 package com.yangtianyu.popularmovie;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
@@ -8,12 +11,14 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.yangtianyu.bean.MovieCommentEntity;
@@ -21,6 +26,8 @@ import com.yangtianyu.bean.MovieCommentListEntity;
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.bean.MovieTrailerEntity;
 import com.yangtianyu.bean.MovieTrailerListEntity;
+import com.yangtianyu.data.MovieContract;
+import com.yangtianyu.data.MovieDbHelper;
 import com.yangtianyu.net.Api;
 import com.yangtianyu.net.ApiUtils;
 import com.yangtianyu.net.Constant;
@@ -63,18 +70,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
     TextView mTvComment;
     @BindView(R.id.ll_comment)
     LinearLayout mLlComment;
-    @BindView(R.id.pb_loading)
-    ProgressBar mPbLoading;
-    @BindView(R.id.tv_loading)
-    TextView mTvLoading;
-    @BindView(R.id.ll_loading)
-    LinearLayout mLlLoading;
     private String mMovie_id = "";
-    private URL mUrl;
     private MovieEntity mMovieEntity;
-    private String trailer_id = "";
     private List<MovieTrailerEntity> mResults = new ArrayList<>();
     private List<MovieCommentEntity> mCommentEntityList = new ArrayList<>();
+    private SQLiteDatabase mDb;
+    private MenuItem menu_collection;
+    private boolean isCollection;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,8 +92,15 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mMovieEntity = getIntent().getParcelableExtra(Constant.MOVIE_ID);
             mMovie_id = mMovieEntity.id + "";
         }
+        initDbHelper();
+        isCollection = isCollection(mMovieEntity.id);
         initData();
         setData();
+    }
+
+    private void initDbHelper() {
+        MovieDbHelper movieDbHelper = new MovieDbHelper(this);
+        mDb = movieDbHelper.getWritableDatabase();
     }
 
     private void initData() {
@@ -117,13 +126,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
         ApiUtils.getMovieReviews(mMovie_id, 1, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                mLlLoading.setVisibility(View.GONE);
             }
 
             @Override
             public void onResponse(String response, int id) {
                 LogUtils.d(response);
-                mLlLoading.setVisibility(View.GONE);
                 MovieCommentListEntity movieCommentListEntity = new Gson().fromJson(response, MovieCommentListEntity.class);
                 if (movieCommentListEntity != null) {
                     int total_results = movieCommentListEntity.total_results;
@@ -195,6 +202,18 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_collection,menu);
+        menu_collection = menu.getItem(0);
+        if (isCollection){
+            menu_collection.setIcon(R.drawable.collection);
+        }else {
+            menu_collection.setIcon(R.drawable.not_collection);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -213,6 +232,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     finish();
                 }
                 return true;
+            case R.id.tb_collection:
+                if (isCollection){
+                    cancelCollection(mMovieEntity.id);
+                }else {
+                    collection(mMovieEntity);
+                }
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -230,4 +256,37 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
     }
 
+
+    public void collection(MovieEntity movieEntity){
+        ContentValues cv = new ContentValues();
+        cv.put(MovieContract.MovieEntry.COLUMN_ID, movieEntity.id);
+        cv.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,movieEntity.vote_average);
+        cv.put(MovieContract.MovieEntry.COLUMN_TITLE,movieEntity.title);
+        cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE,movieEntity.release_date);
+        cv.put(MovieContract.MovieEntry.COLUMN_OVERVIEW,movieEntity.overview);
+        cv.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH,movieEntity.poster_path);
+        mDb.insert(MovieContract.MovieEntry.TABLE_NAME,null,cv);
+        isCollection = true;
+        menu_collection.setIcon(R.drawable.collection);
+    }
+
+    public void cancelCollection(int movie_id){
+        String id = String.valueOf(movie_id);
+        mDb.delete(MovieContract.MovieEntry.TABLE_NAME,"movie_id=?",new String[]{id});
+        isCollection = false;
+        menu_collection.setIcon(R.drawable.not_collection);
+    }
+
+    public boolean isCollection(int movie_id){
+        Cursor cursor = mDb.query(MovieContract.MovieEntry.TABLE_NAME,
+                new String[]{MovieContract.MovieEntry.COLUMN_ID},
+                "movie_id=?",
+                new String[]{String.valueOf(movie_id)},
+                null,
+                null,
+                null);
+        boolean isCollection = cursor.moveToNext();
+        cursor.close();
+        return isCollection;
+    }
 }

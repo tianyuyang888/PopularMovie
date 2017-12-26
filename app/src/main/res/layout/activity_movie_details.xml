@@ -1,115 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <include layout="@layout/too_bar"/>
+    <include layout="@layout/too_bar" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <ScrollView
-            android:scrollbars="none"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="30dp"
                 android:orientation="vertical">
+
                 <ImageView
-                    android:src="@drawable/picasso_placeholder"
-                    android:layout_gravity="center_horizontal"
                     android:id="@+id/iv_poster"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:scaleType="centerCrop"/>
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/picasso_placeholder" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <TextView
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         android:id="@+id/tv_title"
                         style="@style/tv_16_33"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         android:layout_marginTop="@dimen/activity_vertical_margin"
-                        tools:text="电影名称：小丑回魂"/>
+                        tools:text="电影名称：小丑回魂" />
+
                     <TextView
-                        android:layout_marginRight="30dp"
-                        android:layout_alignParentRight="true"
                         android:id="@+id/tv_vote_average"
                         style="@style/tv_16_99"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="30dp"
                         android:layout_marginTop="40dp"
-                        tools:text="用户评分：7.3"/>
+                        tools:text="用户评分：7.3" />
 
                     <TextView
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         android:id="@+id/tv_release_time"
                         style="@style/tv_14_99"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         android:layout_marginTop="60dp"
-                        tools:text="发布日期：2017-09-05"/>
+                        tools:text="发布日期：2017-09-05" />
                 </RelativeLayout>
+
                 <TextView
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:id="@+id/tv_overview"
                     style="@style/tv_14_33"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    tools:text="剧情简介：测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试"/>
-                <TextView
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
+                    tools:text="剧情简介：测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试" />
+
+                <TextView
                     style="@style/tv_14_33"
-                    android:text="@string/movie_trailer"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <include layout="@layout/cutting_line"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:text="@string/movie_trailer" />
+
+                <include layout="@layout/cutting_line" />
+
                 <LinearLayout
                     android:id="@+id/ll_trailer"
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
                 <TextView
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
                     style="@style/tv_14_33"
-                    android:text="@string/movie_comment"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <include layout="@layout/cutting_line"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:text="@string/movie_comment" />
+
+                <include layout="@layout/cutting_line" />
+
                 <LinearLayout
                     android:id="@+id/ll_comment"
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
                 <TextView
                     android:id="@+id/tv_comment"
-                    android:gravity="center"
                     style="@style/tv_14_green"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    tools:text="@string/all_comments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-                <include layout="@layout/cutting_line"/>
+                    android:gravity="center"
+                    tools:text="@string/all_comments" />
+
+                <include layout="@layout/cutting_line" />
             </LinearLayout>
         </ScrollView>
-    <include layout="@layout/loading_item"
-        android:visibility="gone"/>
     </FrameLayout>
 </LinearLayout>

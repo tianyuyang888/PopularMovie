@@ -1,5 +1,7 @@
 package com.yangtianyu.popularmovie;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,8 @@ import com.yangtianyu.adapter.OnItemClickListener;
 import com.yangtianyu.adapter.PosterAdapter;
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.bean.PopularEntity;
+import com.yangtianyu.data.MovieContract;
+import com.yangtianyu.data.MovieDbHelper;
 import com.yangtianyu.net.Api;
 import com.yangtianyu.net.ApiUtils;
 import com.yangtianyu.net.Constant;
@@ -59,6 +63,16 @@ public class MainActivity extends AppCompatActivity {
     private int page = 1;
     private String localUrl = Api.API_POPULAR;
     private boolean isError = false;
+    private SQLiteDatabase mDb;
+    private boolean isCollection;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isCollection){
+            getCollections();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +82,14 @@ public class MainActivity extends AppCompatActivity {
         mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
         mToolBar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(mToolBar);
+        initDbHelper();
         initView();
         initData();
+    }
+
+    private void initDbHelper() {
+        MovieDbHelper movieDbHelper = new MovieDbHelper(this);
+        mDb = movieDbHelper.getWritableDatabase();
     }
 
 
@@ -157,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadMore() {
+        if (isCollection) return;
         getMovieList(++page);
     }
 
@@ -170,12 +191,18 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.movie_popular:
+                isCollection = false;
                 localUrl = Api.API_POPULAR;
                 initData();
                 break;
             case R.id.movie_vote:
+                isCollection = false;
                 localUrl = Api.API_TOP_RATED;
                 initData();
+                break;
+            case R.id.movie_collection:
+                isCollection = true;
+                getCollections();
                 break;
         }
         return true;
@@ -190,6 +217,39 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    public void getCollections(){
+        mList.clear();
+        mPosterAdapter.clearData();
+        mLlLoading.setVisibility(View.VISIBLE);
+        mPbLoading.setVisibility(View.VISIBLE);
+        mTvLoading.setText(getResources().getString(R.string.net_loading));
+        Cursor cursor = mDb.query(MovieContract.MovieEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        while (cursor.moveToNext()){
+            MovieEntity entity = new MovieEntity();
+            entity.id = cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID));
+            entity.title = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+            entity.release_date = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE));
+            entity.overview = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW));
+            entity.vote_average = cursor.getDouble(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE));
+            entity.poster_path = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH));
+            mList.add(entity);
+        }
+        if (mList.size() > 0){
+            UiUtils.hideLoading(mLlLoading);
+            mPosterAdapter.update(mList);
+        }else {
+            UiUtils.showNoData(mLlLoading,mTvLoading,mPbLoading,"你还没有收藏哦！");
+        }
+        cursor.close();
     }
 
 }

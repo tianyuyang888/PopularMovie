@@ -28,12 +28,9 @@ public class UiUtils {
      * @param pbLoading
      */
     public static void showLoading(LinearLayout llRoot, TextView tvLoading, ProgressBar pbLoading){
-        if (llRoot!=null)
-        llRoot.setVisibility(View.VISIBLE);
-        if (pbLoading!=null)
-        pbLoading.setVisibility(View.VISIBLE);
-        if (tvLoading!=null)
-        tvLoading.setText("正在加载中...");
+        if (llRoot!=null) llRoot.setVisibility(View.VISIBLE);
+        if (pbLoading!=null) pbLoading.setVisibility(View.VISIBLE);
+        if (tvLoading!=null) tvLoading.setText("正在加载中...");
     }
 
     /**
@@ -43,12 +40,22 @@ public class UiUtils {
      * @param pbLoading
      */
     public static void showNetError(LinearLayout llRoot, TextView tvLoading,ProgressBar pbLoading){
-        if (llRoot!=null)
-        llRoot.setVisibility(View.VISIBLE);
-        if (pbLoading!=null)
-        pbLoading.setVisibility(View.GONE);
-        if (tvLoading!=null)
-        tvLoading.setText("网络错误，请点击重试");
+        if (llRoot!=null) llRoot.setVisibility(View.VISIBLE);
+        if (pbLoading!=null) pbLoading.setVisibility(View.GONE);
+        if (tvLoading!=null) tvLoading.setText("网络错误，请点击重试");
+    }
+
+    /**
+     * 显示空布局
+     * @param llRoot
+     * @param tvLoading
+     * @param pbLoading
+     * @param content
+     */
+    public static void showNoData(LinearLayout llRoot, TextView tvLoading, ProgressBar pbLoading,String content){
+        if (llRoot!=null) llRoot.setVisibility(View.VISIBLE);
+        if (pbLoading!=null) pbLoading.setVisibility(View.GONE);
+        if (tvLoading!=null) tvLoading.setText(content);
     }
 
     /**
@@ -56,7 +63,6 @@ public class UiUtils {
      * @param llRoot
      */
     public static void hideLoading(LinearLayout llRoot){
-        if (llRoot!=null)
-        llRoot.setVisibility(View.GONE);
+        if (llRoot!=null) llRoot.setVisibility(View.GONE);
     }
 }
