@@ -4,8 +4,11 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
@@ -16,9 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.yangtianyu.bean.MovieCommentEntity;
@@ -36,7 +37,6 @@ import com.yangtianyu.utils.JumpUtils;
 import com.yangtianyu.utils.LogUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,10 +114,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
             public void onResponse(String response, int id) {
                 LogUtils.d(response);
                 MovieTrailerListEntity movieTrailerListEntity = new Gson().fromJson(response, MovieTrailerListEntity.class);
-                if (movieTrailerListEntity != null && movieTrailerListEntity.results != null && movieTrailerListEntity.results.size() > 0){
+                if (movieTrailerListEntity != null && movieTrailerListEntity.results != null && movieTrailerListEntity.results.size() > 0) {
                     mResults = movieTrailerListEntity.results;
                     addTrailer();
-                }else{
+                } else {
                     mLlTrailer.addView(createNoDataView("暂无预告"));
                 }
             }
@@ -140,10 +140,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
                         mTvComment.setVisibility(View.VISIBLE);
                         mTvComment.setText("全部评论" + total_results + "个");
                     }
-                    if (movieCommentListEntity.results != null && movieCommentListEntity.results.size() > 0){
+                    if (movieCommentListEntity.results != null && movieCommentListEntity.results.size() > 0) {
                         mCommentEntityList = movieCommentListEntity.results;
                         addComment();
-                    }else {
+                    } else {
                         mLlComment.addView(createNoDataView("暂无评论"));
                     }
                 }
@@ -203,11 +203,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_collection,menu);
+        getMenuInflater().inflate(R.menu.menu_collection, menu);
         menu_collection = menu.getItem(0);
-        if (isCollection){
+        if (isCollection) {
             menu_collection.setIcon(R.drawable.collection);
-        }else {
+        } else {
             menu_collection.setIcon(R.drawable.not_collection);
         }
         return true;
@@ -233,9 +233,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.tb_collection:
-                if (isCollection){
+                if (isCollection) {
                     cancelCollection(mMovieEntity.id);
-                }else {
+                } else {
                     collection(mMovieEntity);
                 }
                 break;
@@ -257,36 +257,53 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
 
-    public void collection(MovieEntity movieEntity){
+    public void collection(MovieEntity movieEntity) {
         ContentValues cv = new ContentValues();
         cv.put(MovieContract.MovieEntry.COLUMN_ID, movieEntity.id);
-        cv.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,movieEntity.vote_average);
-        cv.put(MovieContract.MovieEntry.COLUMN_TITLE,movieEntity.title);
-        cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE,movieEntity.release_date);
-        cv.put(MovieContract.MovieEntry.COLUMN_OVERVIEW,movieEntity.overview);
-        cv.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH,movieEntity.poster_path);
-        mDb.insert(MovieContract.MovieEntry.TABLE_NAME,null,cv);
-        isCollection = true;
-        menu_collection.setIcon(R.drawable.collection);
+        cv.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, movieEntity.vote_average);
+        cv.put(MovieContract.MovieEntry.COLUMN_TITLE, movieEntity.title);
+        cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieEntity.release_date);
+        cv.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movieEntity.overview);
+        cv.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, movieEntity.poster_path);
+        Uri insert = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, cv);
+        if (insert != null) {
+            isCollection = true;
+            menu_collection.setIcon(R.drawable.collection);
+        }
     }
 
-    public void cancelCollection(int movie_id){
+    public void cancelCollection(int movie_id) {
         String id = String.valueOf(movie_id);
-        mDb.delete(MovieContract.MovieEntry.TABLE_NAME,"movie_id=?",new String[]{id});
-        isCollection = false;
-        menu_collection.setIcon(R.drawable.not_collection);
+        Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+        uri = uri.buildUpon().appendPath(id).build();
+        int delete = getContentResolver().delete(uri, null, null);
+        if (delete != 0) {
+            isCollection = false;
+            menu_collection.setIcon(R.drawable.not_collection);
+        }
     }
 
-    public boolean isCollection(int movie_id){
-        Cursor cursor = mDb.query(MovieContract.MovieEntry.TABLE_NAME,
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public boolean isCollection(int movie_id) {
+        mDb.query(MovieContract.MovieEntry.TABLE_NAME,
                 new String[]{MovieContract.MovieEntry.COLUMN_ID},
                 "movie_id=?",
                 new String[]{String.valueOf(movie_id)},
                 null,
                 null,
                 null);
-        boolean isCollection = cursor.moveToNext();
-        cursor.close();
+        Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+        uri = uri.buildUpon().appendPath(movie_id + "").build();
+        Cursor cursor = getContentResolver().query(uri,
+                null,
+                null,
+                null,
+                null,
+                null);
+        if (cursor != null) {
+            isCollection = cursor.moveToNext();
+            cursor.close();
+        }
         return isCollection;
     }
 }

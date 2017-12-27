@@ -26,6 +26,10 @@
             tools:targetApi="jelly_bean">
         </activity>
         <activity android:name=".AllCommentsActivity"/>
+        <provider
+            android:authorities="com.yangtianyu.popularmovie"
+            android:name="com.yangtianyu.data.MovieContentProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>
