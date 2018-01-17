@@ -99,7 +99,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void initDbHelper() {
-        MovieDbHelper movieDbHelper = new MovieDbHelper(this);
+        MovieDbHelper movieDbHelper = MovieDbHelper.getInstance(this);
         mDb = movieDbHelper.getWritableDatabase();
     }
 

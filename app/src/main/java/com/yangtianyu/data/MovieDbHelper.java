@@ -14,11 +14,21 @@ import com.yangtianyu.data.MovieContract.MovieEntry;
 
 public class MovieDbHelper extends SQLiteOpenHelper{
 
+    private static MovieDbHelper sMovieDbHelper;
+
+    //database values
     private static final String DATABASE_NAME = "movie.db";
     private static final int DATABASE_VERSION = 1;
 
-    public MovieDbHelper(Context context) {
+    private MovieDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static synchronized MovieDbHelper getInstance(Context context){
+        if (sMovieDbHelper == null){
+            sMovieDbHelper = new MovieDbHelper(context.getApplicationContext());
+        }
+        return sMovieDbHelper;
     }
 
     @Override
@@ -36,9 +46,7 @@ public class MovieDbHelper extends SQLiteOpenHelper{
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
-        onCreate(sqLiteDatabase);
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
     }
 
 }

@@ -34,8 +34,7 @@ public class MovieContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Context context = getContext();
-        mMovieDbHelper = new MovieDbHelper(context);
+        mMovieDbHelper = MovieDbHelper.getInstance(getContext());
         return true;
     }
 

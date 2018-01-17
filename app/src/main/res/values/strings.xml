@@ -23,4 +23,8 @@
     <string name="piece">个</string>
     <string name="movie_comment">评论</string>
     <string name="colon">:</string>
+
+    <!--sharedPreferences-->
+    <string name="type">type</string>
+    <string name="no_app">请安装YouTube或者浏览器！</string>
 </resources>

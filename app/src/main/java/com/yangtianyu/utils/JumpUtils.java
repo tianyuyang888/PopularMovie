@@ -4,11 +4,13 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.Toast;
 
 import com.yangtianyu.bean.MovieEntity;
 import com.yangtianyu.net.Constant;
 import com.yangtianyu.popularmovie.AllCommentsActivity;
 import com.yangtianyu.popularmovie.MovieDetailsActivity;
+import com.yangtianyu.popularmovie.R;
 
 /**
  * Created by yangtianyu on 2017/10/26.
@@ -35,10 +37,12 @@ public class JumpUtils {
     public static void watchYoutubeVideo(Context context,String id){
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + id));
-        try {
+        if (appIntent.resolveActivity(context.getPackageManager())!=null){
             context.startActivity(appIntent);
-        }catch (ActivityNotFoundException ex){
+        }else if (webIntent.resolveActivity(context.getPackageManager())!=null){
             context.startActivity(webIntent);
+        }else {
+            Toast.makeText(context,context.getString(R.string.no_app),Toast.LENGTH_SHORT).show();
         }
     }
 

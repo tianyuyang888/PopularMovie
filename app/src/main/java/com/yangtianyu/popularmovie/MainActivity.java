@@ -1,8 +1,8 @@
 package com.yangtianyu.popularmovie;
 
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -29,14 +29,12 @@ import com.yangtianyu.data.MovieContract;
 import com.yangtianyu.data.MovieDbHelper;
 import com.yangtianyu.net.Api;
 import com.yangtianyu.net.ApiUtils;
-import com.yangtianyu.net.Constant;
 import com.yangtianyu.utils.JumpUtils;
 import com.yangtianyu.utils.LogUtils;
+import com.yangtianyu.utils.SPUtils;
 import com.yangtianyu.utils.UiUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,28 +85,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setSupportActionBar(mToolBar);
         initDbHelper();
         initView();
-        initData();
+        int type = (int) SPUtils.get(R.string.type, 1);
+        switch (type){
+            case 1:
+                getPopular();
+                break;
+            case 2:
+                getTopRated();
+                break;
+            case 3:
+                getCollection();
+                break;
+        }
     }
 
     private void initDbHelper() {
         MovieDbHelper movieDbHelper = new MovieDbHelper(this);
         mDb = movieDbHelper.getWritableDatabase();
-    }
-
-
-    private URL buildUrl(int page) {
-        URL url = null;
-        Uri build = Uri.parse(localUrl).buildUpon()
-                .appendQueryParameter(Api.API_KEY, Constant.API_KEY)
-                .appendQueryParameter(Api.LANGUAGE, Constant.LANGUAGE)
-                .appendQueryParameter(Api.REGION, Constant.REGION)
-                .appendQueryParameter(Api.PAGE, page + "").build();
-        try {
-            url = new URL(build.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
     }
 
 
@@ -194,22 +187,37 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.movie_popular:
-                isCollection = false;
-                localUrl = Api.API_POPULAR;
-                initData();
+                SPUtils.put(R.string.type,1);
+                getPopular();
                 break;
             case R.id.movie_vote:
-                isCollection = false;
-                localUrl = Api.API_TOP_RATED;
-                initData();
+                SPUtils.put(R.string.type,2);
+                getTopRated();
                 break;
             case R.id.movie_collection:
-                isCollection = true;
-                if (!getSupportLoaderManager().hasRunningLoaders()) getSupportLoaderManager().initLoader(MOVIE_LOADER, null, this);
-                getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+                SPUtils.put(R.string.type,3);
+                getCollection();
                 break;
         }
         return true;
+    }
+
+    private void getCollection() {
+        isCollection = true;
+        if (!getSupportLoaderManager().hasRunningLoaders()) getSupportLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+    }
+
+    private void getTopRated() {
+        isCollection = false;
+        localUrl = Api.API_TOP_RATED;
+        initData();
+    }
+
+    private void getPopular() {
+        isCollection = false;
+        localUrl = Api.API_POPULAR;
+        initData();
     }
 
     @OnClick({R.id.ll_loading})
@@ -224,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     public void getCollections(Cursor cursor) {
+        if (cursor == null) return;
         mList.clear();
         mPosterAdapter.clearData();
         mLlLoading.setVisibility(View.VISIBLE);
@@ -272,6 +281,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         getCollections(null);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mPosterAdapter.notifyDataSetChanged();
     }
 
 }
