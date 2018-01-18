@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -64,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private int page = 1;
     private String localUrl = Api.API_POPULAR;
     private boolean isError = false;
-    private SQLiteDatabase mDb;
     private boolean isCollection;
 
     @Override
@@ -83,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mToolBar.setTitleTextColor(getResources().getColor(R.color.white));
         mToolBar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(mToolBar);
-        initDbHelper();
         initView();
         int type = (int) SPUtils.get(R.string.type, 1);
         switch (type){
@@ -99,10 +98,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    private void initDbHelper() {
-        MovieDbHelper movieDbHelper = new MovieDbHelper(this);
-        mDb = movieDbHelper.getWritableDatabase();
-    }
 
 
     private void initData() {
@@ -232,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     public void getCollections(Cursor cursor) {
-        if (cursor == null) return;
         mList.clear();
         mPosterAdapter.clearData();
         mLlLoading.setVisibility(View.VISIBLE);
@@ -254,7 +248,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         } else {
             UiUtils.showNoData(mLlLoading, mTvLoading, mPbLoading, "你还没有收藏哦！");
         }
-        cursor.close();
     }
 
     @Override
@@ -280,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        getCollections(null);
     }
 
     @Override

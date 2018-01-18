@@ -1,16 +1,24 @@
 package com.yangtianyu.popularmovie;
 
+import android.app.LoaderManager;
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -74,9 +82,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private MovieEntity mMovieEntity;
     private List<MovieTrailerEntity> mResults = new ArrayList<>();
     private List<MovieCommentEntity> mCommentEntityList = new ArrayList<>();
-    private SQLiteDatabase mDb;
     private MenuItem menu_collection;
     private boolean isCollection;
+    private AsyncQueryHandler mHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,16 +100,50 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mMovieEntity = getIntent().getParcelableExtra(Constant.MOVIE_ID);
             mMovie_id = mMovieEntity.id + "";
         }
-        initDbHelper();
-        isCollection = isCollection(mMovieEntity.id);
+        initAsyncQueryHandler();
         initData();
         setData();
     }
 
-    private void initDbHelper() {
-        MovieDbHelper movieDbHelper = MovieDbHelper.getInstance(this);
-        mDb = movieDbHelper.getWritableDatabase();
+    private void initAsyncQueryHandler() {
+        mHandler = new AsyncQueryHandler(getContentResolver()) {
+            @Override
+            protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+                super.onQueryComplete(token, cookie, cursor);
+                if (cursor != null) {
+                    isCollection = cursor.moveToNext();
+                    cursor.close();
+                }
+            }
+
+            @Override
+            protected void onInsertComplete(int token, Object cookie, Uri uri) {
+                super.onInsertComplete(token, cookie, uri);
+                if (uri != null) {
+                    isCollection = true;
+                    menu_collection.setIcon(R.drawable.collection);
+                }
+            }
+
+            @Override
+            protected void onDeleteComplete(int token, Object cookie, int result) {
+                super.onDeleteComplete(token, cookie, result);
+                if (result != 0) {
+                    isCollection = false;
+                    menu_collection.setIcon(R.drawable.not_collection);
+                }
+            }
+        };
+
+        Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+        uri = uri.buildUpon().appendPath(mMovie_id + "").build();
+        mHandler.startQuery(1,null,uri,
+                null,
+                null,
+                null,
+                null);
     }
+
 
     private void initData() {
         ApiUtils.getMovieVideos(mMovie_id, new StringCallback() {
@@ -265,45 +307,31 @@ public class MovieDetailsActivity extends AppCompatActivity {
         cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieEntity.release_date);
         cv.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movieEntity.overview);
         cv.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, movieEntity.poster_path);
-        Uri insert = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, cv);
-        if (insert != null) {
-            isCollection = true;
-            menu_collection.setIcon(R.drawable.collection);
-        }
+//        Uri insert = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, cv);
+//        if (insert != null) {
+//            isCollection = true;
+//            menu_collection.setIcon(R.drawable.collection);
+//        }
+        mHandler.startInsert(1,null,MovieContract.MovieEntry.CONTENT_URI,cv);
     }
 
     public void cancelCollection(int movie_id) {
         String id = String.valueOf(movie_id);
         Uri uri = MovieContract.MovieEntry.CONTENT_URI;
         uri = uri.buildUpon().appendPath(id).build();
-        int delete = getContentResolver().delete(uri, null, null);
-        if (delete != 0) {
-            isCollection = false;
-            menu_collection.setIcon(R.drawable.not_collection);
-        }
+//        int delete = getContentResolver().delete(uri, null, null);
+//        if (delete != 0) {
+//            isCollection = false;
+//            menu_collection.setIcon(R.drawable.not_collection);
+//        }
+        mHandler.startDelete(1,null,uri,null,null);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public boolean isCollection(int movie_id) {
-        mDb.query(MovieContract.MovieEntry.TABLE_NAME,
-                new String[]{MovieContract.MovieEntry.COLUMN_ID},
-                "movie_id=?",
-                new String[]{String.valueOf(movie_id)},
-                null,
-                null,
-                null);
-        Uri uri = MovieContract.MovieEntry.CONTENT_URI;
-        uri = uri.buildUpon().appendPath(movie_id + "").build();
-        Cursor cursor = getContentResolver().query(uri,
-                null,
-                null,
-                null,
-                null,
-                null);
-        if (cursor != null) {
-            isCollection = cursor.moveToNext();
-            cursor.close();
-        }
-        return isCollection;
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHandler = null;
     }
 }
